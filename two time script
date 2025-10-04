@@ -322,6 +322,17 @@ dagger.Activated:Connect(function()
 				playsound("rbxassetid://76887827159452",1)
 				BodyVelocity:Destroy()
 				hitbox:Destroy()
+				if SECOND_LIFE == true then
+					changeface("rbxassetid://79565455816327")
+					task.delay(3,function()
+						changeface("rbxassetid://131136664195288")
+					end)
+				else
+					changeface("rbxassetid://81896815825257")
+					task.delay(3,function()
+						changeface("rbxassetid://72022379783646")
+					end)
+				end
 				SkidFling(game:GetService("Players"):GetPlayerFromCharacter(part.Parent))
 			end
 		end)
