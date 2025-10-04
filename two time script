@@ -1,0 +1,374 @@
+-- TESTING --
+wait(1)
+
+local function Message(_Title, _Text, Time)
+	game:GetService("StarterGui"):SetCore("SendNotification", {Title = _Title, Text = _Text, Duration = Time})
+end
+
+local function SkidFling(TargetPlayer)
+	local Character = game:GetService("Players").LocalPlayer
+	local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+	local RootPart = Humanoid and Humanoid.RootPart
+
+	local TCharacter = TargetPlayer.Character
+	local THumanoid = TCharacter and TCharacter:FindFirstChildOfClass("Humanoid")
+	local TRootPart = THumanoid and THumanoid.RootPart
+	local THead = TCharacter and TCharacter:FindFirstChild("Head")
+	local Accessory = TCharacter and TCharacter:FindFirstChildOfClass("Accessory")
+	local Handle = Accessory and Accessory:FindFirstChild("Handle")
+
+	if Character and Humanoid and RootPart then
+		if RootPart.Velocity.Magnitude < 50 then
+			getgenv().OldPos = RootPart.CFrame
+		end
+		if THumanoid and THumanoid.Sit then
+			return Message("Error Occurred", "Target is sitting", 5)
+		end
+		if THead then
+			workspace.CurrentCamera.CameraSubject = THead
+		elseif Handle then
+			workspace.CurrentCamera.CameraSubject = Handle
+		else
+			workspace.CurrentCamera.CameraSubject = THumanoid
+		end
+		if not TCharacter:FindFirstChildWhichIsA("BasePart") then
+			return
+		end
+
+		local function FPos(BasePart, Pos, Ang)
+			RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
+			Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+			RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
+			RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
+		end
+
+		local function SFBasePart(BasePart)
+			local TimeToWait = 2
+			local Time = tick()
+			local Angle = 0
+
+			repeat
+				if RootPart and THumanoid then
+					if BasePart.Velocity.Magnitude < 50 then
+						Angle = Angle + 100
+
+						FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+						task.wait()
+					else
+						FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
+						task.wait()
+
+						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+						task.wait()
+					end
+				else
+					break
+				end
+			until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or not TargetPlayer.Character == TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
+		end
+
+		workspace.FallenPartsDestroyHeight = 0/0
+
+		local BV = Instance.new("BodyVelocity")
+		BV.Name = "EpixVel"
+		BV.Parent = RootPart
+		BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+		BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
+
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+
+		if TRootPart and THead then
+			if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
+				SFBasePart(THead)
+			else
+				SFBasePart(TRootPart)
+			end
+		elseif TRootPart and not THead then
+			SFBasePart(TRootPart)
+		elseif not TRootPart and THead then
+			SFBasePart(THead)
+		elseif not TRootPart and not THead and Accessory and Handle then
+			SFBasePart(Handle)
+		else
+			return Message("Error Occurred", "Target is missing everything", 5)
+		end
+
+		BV:Destroy()
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+		workspace.CurrentCamera.CameraSubject = Humanoid
+
+		repeat
+			RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
+			Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
+			Humanoid:ChangeState("GettingUp")
+			table.foreach(Character:GetChildren(), function(_, x)
+				if x:IsA("BasePart") then
+					x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
+				end
+			end)
+			task.wait()
+		until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
+		workspace.FallenPartsDestroyHeight = getgenv().FPDH
+	else
+		return Message("Error Occurred", "Random error", 5)
+	end
+end
+
+
+local HAS_SPAWN = false
+local SECOND_LIFE = false
+local shirt = Instance.new("ShirtGraphic",game.Players.LocalPlayer.Character)
+local function changeface(texture)
+	if game.Players.LocalPlayer.Character:FindFirstChild("Torso") then
+		game.Players.LocalPlayer.Character.Head.Mesh.TextureId=texture
+	else
+		game.Players.LocalPlayer.Character.Head.face.Texture=texture
+	end
+end
+local function playsound(id,volume)
+	local sound = Instance.new("Sound",game.Players.LocalPlayer.Character)
+	sound.SoundId=id
+	sound.Volume=tonumber(volume)
+	sound:Play()
+end
+shirt.Graphic="rbxassetid://124347651977355"
+changeface("rbxassetid://72022379783646")
+local function spin(part)
+	task.spawn(function()
+		local a = 0
+		local pigs = 0
+		repeat
+			part.Rotation = Vector3.new(0, a, 0)
+			wait(.01)
+			a = a+3 
+		until pigs == 1 
+	end)
+end
+local function secondlife()
+	changeface("rbxassetid://79565455816327")
+	playsound("rbxassetid://119272375381813",1)
+	--local wings = Instance.new("MeshPart",game.Players.LocalPlayer.Character)
+	--wings.MeshContent="rbxassetid://84956010315120"
+	--wings.TextureID="rbxassetid://101019420811771"
+	--wings.CFrame=game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0, 0, -1.5)
+	--local weld = Instance.new("WeldConstraint",wings)
+	--weld.Part0=wings
+	--weld.Part1=game.Players.LocalPlayer.Character.HumanoidRootPart
+	task.delay(3,function()
+		changeface("rbxassetid://131136664195288")
+	end)
+	if SECOND_LIFE == true then 
+	else
+		local NEWspawn = Instance.new("Part",game.Players.LocalPlayer.Character)
+		NEWspawn.Shape=Enum.PartType.Block
+		NEWspawn.Anchored=false
+		NEWspawn.Name="HALO"
+		NEWspawn.CanCollide=false
+		NEWspawn.Transparency=1
+		NEWspawn.Size=Vector3.new(3.452,0.001,3.505)
+		NEWspawn.Color=Color3.new(1, 1, 1)
+		NEWspawn.CFrame=game.Players.LocalPlayer.Character.Head.CFrame * CFrame.new(0, 1, 0)
+		local weldZ = Instance.new("WeldConstraint",NEWspawn)
+		weldZ.Part0=NEWspawn
+		weldZ.Part1=game.Players.LocalPlayer.Character.Head
+		local LIGHT = Instance.new("PointLight",NEWspawn)
+		LIGHT.Brightness=2
+		spin(NEWspawn)
+		local decal = Instance.new("Decal",NEWspawn)
+		decal.Face=Enum.NormalId.Top
+		decal.Texture="rbxassetid://12787168857"
+		local ANdecal = Instance.new("Decal",NEWspawn)
+		ANdecal.Face=Enum.NormalId.Bottom
+		ANdecal.Texture="rbxassetid://12787168857"
+		SECOND_LIFE = true
+	end
+end
+local function respawn(cframe)
+	task.delay(0.1,function()
+		local respawn = Instance.new("Tool",game.Players.LocalPlayer.Backpack)
+		respawn.RequiresHandle=false
+		respawn.ToolTip="Respawn in the position you spawned your ritual"
+		respawn.Name="Respawn"
+		respawn.Activated:Connect(function()
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame=cframe.CFrame
+			secondlife()
+		end)
+	end)
+end
+local ritual = Instance.new("Tool",game.Players.LocalPlayer.Backpack)
+ritual.RequiresHandle=false
+ritual.ToolTip="Place your spawn"
+ritual.Name="Ritual"
+ritual.Activated:Connect(function()
+	if HAS_SPAWN == true then return end
+	HAS_SPAWN=true
+	playsound("rbxassetid://138963608045698",1)
+	local spawnz = Instance.new("Part",workspace)
+	spawnz.Shape=Enum.PartType.Block
+	spawnz.Anchored=true
+	spawnz.CanCollide=false
+	spawnz.Transparency=1
+	spawnz.Size=Vector3.new(3.452,0.001,3.505)
+	spawnz.Color=Color3.new(1, 1, 1)
+	spawnz.CFrame=game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -2.889, -2.926)
+	spin(spawnz)
+	local decal = Instance.new("Decal",spawnz)
+	decal.Face=Enum.NormalId.Top
+	decal.Texture="rbxassetid://12787168857"
+	local cframe = game.Players.LocalPlayer.Character.HumanoidRootPart:Clone()
+	cframe.Anchored=true
+	cframe.CFrame=spawnz.CFrame
+	cframe.Parent=workspace
+	cframe.CanCollide=false
+	respawn(cframe)
+	print(cframe.CFrame)
+	for _, v in pairs(cframe:GetDescendants()) do
+		v:Destroy()
+	end
+	ritual:Destroy()
+end)
+
+local crouching = false
+local dagger = Instance.new("Tool",game.Players.LocalPlayer.Backpack)
+dagger.RequiresHandle=false
+dagger.ToolTip="Stab Someone"
+dagger.Name="Dagger"
+local daggermovecd = false
+dagger.Activated:Connect(function()
+	if daggermovecd == true then return end
+	daggermovecd=true
+	if crouching == true then
+		crouching=false
+		for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("Part") then
+				if v.Name=="HumanoidRootPart" or v.Name=="HALO" then
+				else
+					game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+				end
+			elseif v:IsA("MeshPart") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+			elseif v:IsA("Decal") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+			end
+		end
+	end
+	playsound("rbxassetid://87350728414052",1)
+	Message("hi","this move now has a cooldown of 3.6 seconds",3)
+	task.delay(0.7,function()
+		local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+		local BodyVelocity = Instance.new("BodyVelocity",root)
+		BodyVelocity.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+		BodyVelocity.Velocity = Vector3.new(1, 1, 1)*root.CFrame.LookVector * 45
+		BodyVelocity.P=10000
+		local hitbox = Instance.new("Part",game.Players.LocalPlayer.Character)
+		hitbox.Shape=Enum.PartType.Block
+		hitbox.Anchored=true
+		hitbox.CanCollide=false
+		hitbox.Transparency=0.5
+		hitbox.Size=Vector3.new(2.89, 3, 4.613)
+		hitbox.Color=Color3.new(1,0,0)
+		hitbox.CFrame=root.CFrame*CFrame.new(0, 0, -2.11)
+		task.spawn(function()
+			while wait(0.1) do
+				if hitbox then
+					hitbox.CFrame=root.CFrame*CFrame.new(0, 0, -2.11)
+				else
+					break
+				end
+			end
+		end)
+		hitbox.Touched:Connect(function(part)
+			if part.Parent:FindFirstChild("Humanoid") then
+				if part.Parent.Name == game.Players.LocalPlayer.Character.Name then return end
+				playsound("rbxassetid://76887827159452",1)
+				BodyVelocity:Destroy()
+				hitbox:Destroy()
+				SkidFling(game:GetService("Players"):GetPlayerFromCharacter(part.Parent))
+			end
+		end)
+		task.delay(0.5,function()
+			hitbox:Destroy()
+			BodyVelocity:Destroy()
+		end)
+		task.delay(3.6,function()
+			daggermovecd=false
+		end)
+	end)
+end)
+
+local crouch = Instance.new("Tool",game.Players.LocalPlayer.Backpack)
+crouch.RequiresHandle=false
+crouch.ToolTip="Crouch To Hide"
+crouch.Name="Crouch"
+crouch.Activated:Connect(function()
+	if crouching == true then
+		crouching=false
+		playsound("rbxassetid://134581897985098",1)
+		for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("Part") then
+				if v.Name=="HumanoidRootPart" or v.Name=="HALO" then
+				else
+					game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+				end
+			elseif v:IsA("MeshPart") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+			elseif v:IsA("Decal") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 0}):Play()
+			end
+		end
+	elseif crouching == false then
+		crouching=true
+		playsound("rbxassetid://96179023250592",1)
+		for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("Part") then
+				if v.Name=="HumanoidRootPart" or v.Name=="HALO" then
+				else
+					game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 1}):Play()
+				end
+			elseif v:IsA("MeshPart") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 1}):Play()
+			elseif v:IsA("Decal") then
+				game:GetService("TweenService"):Create(v,TweenInfo.new(1),{Transparency = 1}):Play()
+			end
+		end
+	end
+end)
