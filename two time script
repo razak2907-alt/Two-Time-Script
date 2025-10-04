@@ -1,6 +1,8 @@
 -- TESTING --
 wait(1)
 
+local Players = game:GetService("Players")
+
 local function Message(_Title, _Text, Time)
 	game:GetService("StarterGui"):SetCore("SendNotification", {Title = _Title, Text = _Text, Duration = Time})
 end
