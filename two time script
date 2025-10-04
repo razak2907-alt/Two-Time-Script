@@ -2,6 +2,7 @@
 wait(1)
 
 local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
 
 local function Message(_Title, _Text, Time)
 	game:GetService("StarterGui"):SetCore("SendNotification", {Title = _Title, Text = _Text, Duration = Time})
