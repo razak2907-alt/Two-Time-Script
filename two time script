@@ -33,7 +33,7 @@ local function SkidFling(Target)
 				local root = game.Players.LocalPlayer.Character.HumanoidRootPart
 				local BodyVelocity = Instance.new("BodyVelocity",root)
 				BodyVelocity.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
-				BodyVelocity.Velocity = Vector3.new(1, 1, 1)*root.CFrame.LookVector * 45
+				BodyVelocity.Velocity = Vector3.new(1, 1, 1)*root.CFrame.LookVector * 1
 				BodyVelocity.P=10000
 				game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored=false
 				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame=cframe.CFrame
