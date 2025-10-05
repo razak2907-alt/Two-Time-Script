@@ -10,13 +10,47 @@ local function Message(_Title, _Text, Time)
 end
 
 local function SkidFling(Target)
+	local cframe = game.Players.LocalPlayer.Character.HumanoidRootPart:Clone()
+	cframe.Anchored=true
+	cframe.Parent=workspace
+	cframe.CanCollide=false
+	print(cframe.CFrame)
+	for _, v in pairs(cframe:GetDescendants()) do
+		v:Destroy()
+	end
+	local STOPPP = false
 	local Thrust = Instance.new('BodyThrust', lp.Character.HumanoidRootPart)
 	Thrust.Force = Vector3.new(9999,9999,9999)
 	Thrust.Name = "YeetForce"
+	task.delay(1.5,function()
+		Thrust:Destroy()
+		STOPPP=true
+		Message("alert","to prevent flinging from happening it anchors you for 1.5 seconds",1.5)
+		task.delay(0.3,function()
+			game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored=true
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame=cframe.CFrame
+			task.delay(1.5,function()
+				local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+				local BodyVelocity = Instance.new("BodyVelocity",root)
+				BodyVelocity.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+				BodyVelocity.Velocity = Vector3.new(1, 1, 1)*root.CFrame.LookVector * 45
+				BodyVelocity.P=10000
+				game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored=false
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame=cframe.CFrame
+				task.delay(0.5,function()
+					BodyVelocity:Destroy()
+				end)
+			end)
+		end)
+	end)
 	repeat
-		lp.Character.HumanoidRootPart.CFrame = Target.HumanoidRootPart.CFrame
-		Thrust.Location = Target.HumanoidRootPart.Position
-		game:FindService("RunService").Heartbeat:wait()
+		if Thrust and STOPPP == false then
+			lp.Character.HumanoidRootPart.CFrame = Target.HumanoidRootPart.CFrame
+			Thrust.Location = Target.HumanoidRootPart.Position
+			game:FindService("RunService").Heartbeat:wait()
+		else
+			break   
+		end
 	until not Target:FindFirstChild("Head")
 end
 
